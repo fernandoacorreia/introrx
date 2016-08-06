@@ -11,6 +11,12 @@ Create a GitHub personal access token at https://github.com/settings/tokens.
 
 Edit `secret.js` and add your token.
 
+To avoid having git warning about changes to `secret.js`, run:
+
+```
+git update-index --assume-unchanged secret.js
+```
+
 Run it in a web server, e.g.:
 
 ```
