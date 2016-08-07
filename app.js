@@ -11,13 +11,25 @@ function main() {
     .flatMap(sendRequest);
 
   var suggestion1Stream = responseStream
-    .map(getRandomUser);
+    .map(getRandomUser)
+    .merge(
+      refreshClickStream.map(function() { return null; })
+    )
+    .startWith(null);
 
   var suggestion2Stream = responseStream
-    .map(getRandomUser);
+    .map(getRandomUser)
+    .merge(
+      refreshClickStream.map(function() { return null; })
+    )
+    .startWith(null);
 
   var suggestion3Stream = responseStream
-    .map(getRandomUser);
+    .map(getRandomUser)
+    .merge(
+      refreshClickStream.map(function() { return null; })
+    )
+    .startWith(null);
 
   suggestion1Stream.subscribe(renderSuggestion('.suggestion1'));
   suggestion2Stream.subscribe(renderSuggestion('.suggestion2'));
