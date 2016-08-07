@@ -11,9 +11,16 @@ function main() {
 
   var numberOfSuggestions = 3;
   for (i = 1; i <= numberOfSuggestions; i++) {
-    var suggestionStream = makeSuggestionStream(i, responseStream, refreshClickStream);
     var selector = '.suggestion' + i;
-    suggestionStream.subscribe(renderSuggestion(selector));
+    var suggestionStream = makeSuggestionStream(i, responseStream, refreshClickStream);
+    var emptySuggestionStream = suggestionStream
+      .filter(function(user) { return user === null});
+    var userSuggestionStream = suggestionStream
+      .filter(function(user) { return user != null});
+    emptySuggestionStream
+      .subscribe(hideSuggestion(selector));
+    userSuggestionStream
+      .subscribe(renderSuggestedUser(selector));
   }
 };
 
@@ -46,29 +53,24 @@ function getRandomUser(userList) {
   return userList[index];
 };
 
-function renderSuggestion(selector) {
+function hideSuggestion(selector) {
+  return function() {
+    var suggestionEl = document.querySelector(selector);
+    suggestionEl.style.visibility = 'hidden';
+  }
+};
+
+function renderSuggestedUser(selector) {
   return function(suggestedUser) {
     var suggestionEl = document.querySelector(selector);
-    if (suggestedUser === null) {
-      hideSuggestion(suggestionEl);
-    } else {
-      renderSuggestedUser(suggestionEl, suggestedUser);
-    }
+    suggestionEl.style.visibility = 'visible';
+    var usernameEl = suggestionEl.querySelector('.username');
+    usernameEl.href = suggestedUser.html_url;
+    usernameEl.textContent = suggestedUser.login;
+    var imgEl = suggestionEl.querySelector('img');
+    imgEl.src = "";
+    imgEl.src = suggestedUser.avatar_url;
   }
-}
-
-function hideSuggestion(element) {
-  element.style.visibility = 'hidden';
-}
-
-function renderSuggestedUser(suggestionEl, suggestedUser) {
-  suggestionEl.style.visibility = 'visible';
-  var usernameEl = suggestionEl.querySelector('.username');
-  usernameEl.href = suggestedUser.html_url;
-  usernameEl.textContent = suggestedUser.login;
-  var imgEl = suggestionEl.querySelector('img');
-  imgEl.src = "";
-  imgEl.src = suggestedUser.avatar_url;
-}
+};
 
 main();
