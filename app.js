@@ -1,12 +1,29 @@
-var url = 'https://api.github.com/users?access_token=' + accessToken;
+function main() {
+  var refreshButton = document.querySelector('.refresh');
 
-var requestStream = Rx.Observable.just(url);
+  var refreshClickStream = Rx.Observable.fromEvent(refreshButton, 'click')
+    .startWith('startup click');
 
-var responseStream = requestStream
-  .flatMap(function(requestUrl) {
-    return Rx.Observable.fromPromise(jQuery.getJSON(requestUrl));
-  });
+  var requestStream = refreshClickStream
+    .map(getUrl);
 
-responseStream.subscribe(function(response) {
+  var responseStream = requestStream
+    .flatMap(sendRequest);
+
+  responseStream.subscribe(processResponse);
+}
+
+function getUrl() {
+  var randomOffset = Math.floor(Math.random() * 500);
+  return 'https://api.github.com/users?since=' + randomOffset + '&access_token=' + accessToken;
+}
+
+function sendRequest(requestUrl) {
+  return Rx.Observable.fromPromise(jQuery.getJSON(requestUrl));
+};
+
+function processResponse(response) {
   console.log('response: %o', response);
-});
+};
+
+main();
