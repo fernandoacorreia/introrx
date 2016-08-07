@@ -56,17 +56,25 @@ function renderSuggestion(selector) {
   return function(suggestedUser) {
     var suggestionEl = document.querySelector(selector);
     if (suggestedUser === null) {
-      suggestionEl.style.visibility = 'hidden';
+      hideSuggestion(suggestionEl);
     } else {
-      suggestionEl.style.visibility = 'visible';
-      var usernameEl = suggestionEl.querySelector('.username');
-      usernameEl.href = suggestedUser.html_url;
-      usernameEl.textContent = suggestedUser.login;
-      var imgEl = suggestionEl.querySelector('img');
-      imgEl.src = "";
-      imgEl.src = suggestedUser.avatar_url;
+      renderSuggestedUser(suggestionEl, suggestedUser);
     }
   }
+}
+
+function hideSuggestion(element) {
+  element.style.visibility = 'hidden';
+}
+
+function renderSuggestedUser(suggestionEl, suggestedUser) {
+  suggestionEl.style.visibility = 'visible';
+  var usernameEl = suggestionEl.querySelector('.username');
+  usernameEl.href = suggestedUser.html_url;
+  usernameEl.textContent = suggestedUser.login;
+  var imgEl = suggestionEl.querySelector('img');
+  imgEl.src = "";
+  imgEl.src = suggestedUser.avatar_url;
 }
 
 main();
