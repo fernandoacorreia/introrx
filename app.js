@@ -1,48 +1,50 @@
 function main() {
   var refreshButton = document.querySelector('.refresh');
+  var close1Button = document.querySelector('.close1');
+  var close2Button = document.querySelector('.close2');
+  var close3Button = document.querySelector('.close3');
 
-  var refreshClickStream = Rx.Observable.fromEvent(refreshButton, 'click')
-    .startWith('startup click');
+  var refreshClickStream = Rx.Observable.fromEvent(refreshButton, 'click');
 
-  var requestStream = refreshClickStream
+  var requestStream = refreshClickStream.startWith('startup click')
     .map(getUrl);
 
   var responseStream = requestStream
     .flatMap(sendRequest);
 
-  var suggestion1Stream = responseStream
-    .map(getRandomUser)
-    .merge(
-      refreshClickStream.map(function() { return null; })
-    )
-    .startWith(null);
+  var close1ClickStream = Rx.Observable.fromEvent(close1Button, 'click');
+  var close2ClickStream = Rx.Observable.fromEvent(close2Button, 'click');
+  var close3ClickStream = Rx.Observable.fromEvent(close3Button, 'click');
 
-  var suggestion2Stream = responseStream
-    .map(getRandomUser)
-    .merge(
-      refreshClickStream.map(function() { return null; })
-    )
-    .startWith(null);
-
-  var suggestion3Stream = responseStream
-    .map(getRandomUser)
-    .merge(
-      refreshClickStream.map(function() { return null; })
-    )
-    .startWith(null);
+  var suggestion1Stream = makeSuggestionStream(close1ClickStream, responseStream, refreshClickStream);
+  var suggestion2Stream = makeSuggestionStream(close2ClickStream, responseStream, refreshClickStream);
+  var suggestion3Stream = makeSuggestionStream(close3ClickStream, responseStream, refreshClickStream);
 
   suggestion1Stream.subscribe(renderSuggestion('.suggestion1'));
   suggestion2Stream.subscribe(renderSuggestion('.suggestion2'));
   suggestion3Stream.subscribe(renderSuggestion('.suggestion3'));
-}
+};
 
 function getUrl() {
   var randomOffset = Math.floor(Math.random() * 500);
   return 'https://api.github.com/users?since=' + randomOffset + '&access_token=' + accessToken;
-}
+};
 
 function sendRequest(requestUrl) {
   return Rx.Observable.fromPromise(jQuery.getJSON(requestUrl));
+};
+
+function makeSuggestionStream(clickStream, responseStream, refreshClickStream) {
+  return clickStream.startWith('startup click')
+    .combineLatest(responseStream,
+      function(click, userList) {
+        return getRandomUser(userList);
+      }
+    )
+    .merge(
+      refreshClickStream.map(function() { return null; })
+    )
+    .startWith(null);
 };
 
 function getRandomUser(userList) {
