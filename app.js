@@ -13,17 +13,15 @@ function main() {
   var suggestion1Stream = responseStream
     .map(getRandomUser);
 
-  suggestion1Stream.subscribe(renderSuggestion1);
-
   var suggestion2Stream = responseStream
     .map(getRandomUser);
-
-  suggestion2Stream.subscribe(renderSuggestion2);
 
   var suggestion3Stream = responseStream
     .map(getRandomUser);
 
-  suggestion3Stream.subscribe(renderSuggestion3);
+  suggestion1Stream.subscribe(renderSuggestion('.suggestion1'));
+  suggestion2Stream.subscribe(renderSuggestion('.suggestion2'));
+  suggestion3Stream.subscribe(renderSuggestion('.suggestion3'));
 }
 
 function getUrl() {
@@ -40,30 +38,20 @@ function getRandomUser(userList) {
   return userList[index];
 };
 
-function renderSuggestion1(suggestedUser) {
-  renderSuggestion(suggestedUser, '.suggestion1');
-};
-
-function renderSuggestion2(suggestedUser) {
-  renderSuggestion(suggestedUser, '.suggestion2');
-};
-
-function renderSuggestion3(suggestedUser) {
-  renderSuggestion(suggestedUser, '.suggestion3');
-};
-
-function renderSuggestion(suggestedUser, selector) {
-  var suggestionEl = document.querySelector(selector);
-  if (suggestedUser === null) {
-    suggestionEl.style.visibility = 'hidden';
-  } else {
-    suggestionEl.style.visibility = 'visible';
-    var usernameEl = suggestionEl.querySelector('.username');
-    usernameEl.href = suggestedUser.html_url;
-    usernameEl.textContent = suggestedUser.login;
-    var imgEl = suggestionEl.querySelector('img');
-    imgEl.src = "";
-    imgEl.src = suggestedUser.avatar_url;
+function renderSuggestion(selector) {
+  return function(suggestedUser) {
+    var suggestionEl = document.querySelector(selector);
+    if (suggestedUser === null) {
+      suggestionEl.style.visibility = 'hidden';
+    } else {
+      suggestionEl.style.visibility = 'visible';
+      var usernameEl = suggestionEl.querySelector('.username');
+      usernameEl.href = suggestedUser.html_url;
+      usernameEl.textContent = suggestedUser.login;
+      var imgEl = suggestionEl.querySelector('img');
+      imgEl.src = "";
+      imgEl.src = suggestedUser.avatar_url;
+    }
   }
 }
 
