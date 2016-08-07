@@ -10,7 +10,20 @@ function main() {
   var responseStream = requestStream
     .flatMap(sendRequest);
 
-  responseStream.subscribe(processResponse);
+  var suggestion1Stream = responseStream
+    .map(getRandomUser);
+
+  suggestion1Stream.subscribe(renderSuggestion1);
+
+  var suggestion2Stream = responseStream
+    .map(getRandomUser);
+
+  suggestion2Stream.subscribe(renderSuggestion2);
+
+  var suggestion3Stream = responseStream
+    .map(getRandomUser);
+
+  suggestion3Stream.subscribe(renderSuggestion3);
 }
 
 function getUrl() {
@@ -22,8 +35,36 @@ function sendRequest(requestUrl) {
   return Rx.Observable.fromPromise(jQuery.getJSON(requestUrl));
 };
 
-function processResponse(response) {
-  console.log('response: %o', response);
+function getRandomUser(userList) {
+  var index = Math.floor(Math.random() * userList.length);
+  return userList[index];
 };
+
+function renderSuggestion1(suggestedUser) {
+  renderSuggestion(suggestedUser, '.suggestion1');
+};
+
+function renderSuggestion2(suggestedUser) {
+  renderSuggestion(suggestedUser, '.suggestion2');
+};
+
+function renderSuggestion3(suggestedUser) {
+  renderSuggestion(suggestedUser, '.suggestion3');
+};
+
+function renderSuggestion(suggestedUser, selector) {
+  var suggestionEl = document.querySelector(selector);
+  if (suggestedUser === null) {
+    suggestionEl.style.visibility = 'hidden';
+  } else {
+    suggestionEl.style.visibility = 'visible';
+    var usernameEl = suggestionEl.querySelector('.username');
+    usernameEl.href = suggestedUser.html_url;
+    usernameEl.textContent = suggestedUser.login;
+    var imgEl = suggestionEl.querySelector('img');
+    imgEl.src = "";
+    imgEl.src = suggestedUser.avatar_url;
+  }
+}
 
 main();
